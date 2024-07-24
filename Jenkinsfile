@@ -5,6 +5,7 @@ pipeline {
 
     environment {
       PIP_BREAK_SYSTEM_PACKAGES = "1"
+      scannerHome = tool 'SonarQube'
     }
 
     stages {
@@ -21,6 +22,14 @@ pipeline {
           sh "python3 -m pytest --cov=. --cov-report xml:test-results/coverage.xml --junitxml=test-results/pytest-report.xml"
         }
       }
+
+        stage('Sonarqube analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        } 
     
     }
 
