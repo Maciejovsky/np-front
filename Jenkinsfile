@@ -13,7 +13,7 @@ pipeline {
           checkout scm
         }
       }
-    }
+    
 
     stage('Run test') {
         steps {
@@ -21,6 +21,6 @@ pipeline {
           sh "python3 -m pytest --cov=. --cov-report xml:test-results/coverage.xml --junitxml=test-results/pytest-report.xml"
         }
       }
-    }   
     
+    }   
 }
