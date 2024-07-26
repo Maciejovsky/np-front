@@ -23,7 +23,7 @@ pipeline {
         }
       }
 
-        stage('Sonarqube analysis') {
+    stage('Sonarqube analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh "${scannerHome}/bin/sonar-scanner"
@@ -31,27 +31,26 @@ pipeline {
             }
         } 
     
+    stage('Build application image') {
+        steps {
+            script {
+                // Prepare basic image for application
+                dockerTag = "${env.BUILD_ID}.${env.GIT_COMMIT.take(7)}"
+                applicationImage = docker.build("198690/frontend:$dockerTag",".")
+            }
+        }
     }
-        stage('Build application image') {
-            steps {
-                script {
-                  // Prepare basic image for application
-                  dockerTag = "${env.BUILD_ID}.${env.GIT_COMMIT.take(7)}"
-                  applicationImage = docker.build("198690/frontend:$dockerTag",".")
-                }
-            }
-        }
     
-        stage ('Pushing image to docker registry') {
-            steps {
-                script {
-                    docker.withRegistry("", "dockerhub") {
-                        applicationImage.push()
-                        applicationImage.push('latest')
-                    }
+    stage ('Pushing image to docker registry') {
+        steps {
+            script {
+                docker.withRegistry("", "dockerhub") {
+                    applicationImage.push()
+                    applicationImage.push('latest')
                 }
             }
         }
+    }
     post {
         always {
           junit 'test-results/*.xml'
